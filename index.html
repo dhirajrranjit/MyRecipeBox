@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Recipe Box</title>
+<style>
+:root{
+  --bg:#f7f4ee;--panel:#fffdf9;--ink:#27231f;--muted:#746d63;--line:#e5ddd2;
+  --nav:#2e2923;--nav2:#403931;--accent:#9a5b2e;--accent-soft:#f1dfcf;
+  --danger:#a63a3a;--success:#3d7a52;--shadow:0 10px 30px rgba(55,42,28,.09);
+  --radius:18px;--sidebar:248px
+}
+*{box-sizing:border-box}
+html{overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden}
+button,input,textarea,select{font:inherit}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,textarea,select{font-size:16px}
+img{max-width:100%;display:block}
+.hidden{display:none!important}
+button{cursor:pointer}.app{min-height:100vh}
+.sidebar{background:var(--nav);color:#fff;padding:18px 14px;position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);height:100vh;overflow:auto;z-index:40}
+.main{margin-left:var(--sidebar);min-width:0;min-height:100vh;width:calc(100% - var(--sidebar))}
+.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:1.2rem;padding:8px 8px 18px}
+.brand-icon{width:36px;height:36px;border-radius:12px;background:#fff2;display:grid;place-items:center}
+.nav{display:flex;flex-direction:column;gap:5px}.nav button{border:0;background:transparent;color:#e9e3dc;text-align:left;padding:10px 12px;border-radius:10px;font-weight:650}
+.nav button:hover,.nav button.active{background:var(--nav2);color:#fff}.nav .divider{height:1px;background:#ffffff1b;margin:8px 5px}
+.nav .small{font-size:.78rem;color:#bdb4aa;padding:6px 12px 2px;text-transform:uppercase;letter-spacing:.06em}
+.sidebar-footer{margin-top:18px;color:#bdb4aa;font-size:.78rem;line-height:1.45;padding:0 8px}
+.topbar{position:sticky;top:0;z-index:30;width:100%;background:rgba(247,244,238,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:14px 22px}
+.mobile-menu{display:none}.search-wrap{flex:1;max-width:650px;position:relative}.search-wrap input{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 14px 11px 38px;outline:none}
+.search-wrap span{position:absolute;left:13px;top:10px;color:var(--muted)}.top-actions{display:flex;gap:8px}
+.btn{border:0;border-radius:11px;padding:10px 14px;font-weight:750}.btn-primary{background:var(--accent);color:#fff}.btn-soft{background:var(--accent-soft);color:#6a3b1e}.btn-ghost{background:#eee7dc;color:#4b433a}.btn-danger{background:#f6dddd;color:var(--danger)}.btn-success{background:#e4f2e8;color:#2f6d44}
+.content{max-width:1260px;margin:0 auto;padding:24px 28px 40px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}.page-head h1{margin:0;font-size:1.85rem}.page-head p{margin:6px 0 0;color:var(--muted)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px}.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.recipe-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.recipe-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:.15s ease;cursor:pointer;position:relative}.recipe-card:hover{transform:translateY(-2px)}
+.card-photo{aspect-ratio:16/10;background:linear-gradient(135deg,#ead9c5,#d8c0a6);display:grid;place-items:center;font-size:3rem;overflow:hidden}.card-photo img{width:100%;height:100%;object-fit:cover}.card-body{padding:15px}.card-title-row{display:flex;gap:8px;align-items:flex-start}.card-title{font-weight:850;line-height:1.25;flex:1}.fav-btn{border:0;background:transparent;font-size:1.2rem;padding:0}.card-meta{color:var(--muted);font-size:.87rem;margin-top:6px}.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.mini-tag{font-size:.73rem;padding:4px 7px;background:#eee4d9;border-radius:999px;color:#6c4b31}
+.empty{padding:70px 15px;text-align:center;color:var(--muted)}.empty .emoji{font-size:3rem;margin-bottom:10px}
+.detail{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.8fr);gap:24px}.hero{background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}.hero-photo{aspect-ratio:16/8;background:linear-gradient(135deg,#ead9c5,#d8c0a6);display:grid;place-items:center;font-size:4rem;overflow:hidden}.hero-photo img{width:100%;height:100%;object-fit:cover}.hero-body{padding:22px}.hero h1{font-size:2rem;margin:0 0 8px}.muted{color:var(--muted)}.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0}.meta-cell{padding:11px;border-right:1px solid var(--line);text-align:center}.meta-cell:last-child{border-right:0}.meta-cell small{display:block;color:var(--muted);font-size:.72rem}.meta-cell strong{display:block;margin-top:2px}
+.servings-control{display:flex;justify-content:center;align-items:center;gap:8px}.round{width:27px;height:27px;border-radius:50%;border:1px solid var(--line);background:#fff}
+.action-row{display:flex;gap:8px;flex-wrap:wrap}.section-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:18px}.section-card h2{margin:0 0 14px;font-size:1.2rem}
+.ingredients{list-style:none;padding:0;margin:0}.ingredient{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}.ingredient:last-child{border-bottom:0}.ingredient input{margin-top:4px}.ingredient.checked span{text-decoration:line-through;color:var(--muted)}
+.steps{margin:0;padding-left:26px}.steps li{padding:0 0 13px 6px;line-height:1.55}.note{background:#fff3d8;border-left:4px solid #d89a2d;padding:12px 14px;border-radius:8px;white-space:pre-wrap}
+.side-panel{align-self:start;position:sticky;top:82px}.side-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}.side-card h3{margin:0 0 10px;font-size:1rem}.source-link{word-break:break-word}
+.form-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+.photo-editor{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start}
+.photo-preview{
+  aspect-ratio:16/10;border:1px dashed #cfc3b5;border-radius:14px;background:#f3eee7;
+  display:grid;place-items:center;overflow:hidden;color:var(--muted);min-height:138px
+}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.photo-empty{text-align:center;padding:16px;font-size:.88rem}
+.photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.photo-actions .btn{min-height:42px}
+.photo-help{font-size:.78rem;color:var(--muted);line-height:1.45;margin-top:8px}
+.photo-status{font-size:.8rem;margin-top:8px;color:var(--muted)}
+.camera-only{display:none}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}.form-grid label,.modal label{display:block;font-size:.84rem;font-weight:800;margin-bottom:6px}.form-grid input,.form-grid textarea,.form-grid select,.modal input,.modal textarea,.modal select{width:100%;border:1px solid #d8cfc3;border-radius:10px;padding:10px 11px;background:#fff}.form-grid textarea,.modal textarea{min-height:120px;resize:vertical}.form-section{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px;margin-top:4px}.form-section h3{margin:0 0 12px}
+.inline-list{display:flex;flex-direction:column;gap:8px}.inline-row{display:grid;grid-template-columns:110px 120px 1fr auto;gap:8px}.inline-row.step{grid-template-columns:42px 1fr auto}.inline-row input{min-width:0}.icon-btn{border:0;background:#f0ebe4;border-radius:9px;padding:8px 10px}.form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;background:#0007;z-index:100;display:grid;place-items:center;padding:18px}.modal{background:var(--panel);width:min(760px,100%);max-height:90vh;overflow:auto;border-radius:20px;box-shadow:0 24px 70px #0004;padding:22px}.modal h2{margin:0 0 6px}.modal-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.choice-grid.two{grid-template-columns:repeat(2,1fr)}.choice{border:1px solid var(--line);background:#fff;border-radius:14px;padding:16px;text-align:left}.choice strong{display:block;margin-bottom:4px}.choice small{color:var(--muted)}
+.import-preview{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.status{padding:10px 12px;border-radius:10px;background:#eee7dc;margin-top:10px}.status.error{background:#f7dddd;color:#7d2525}.status.ok{background:#e4f2e8;color:#2f6d44}
+.grocery-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}.grocery-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start}.grocery-item label{font-weight:600;margin:0}
+.collection-pill{display:inline-flex;gap:4px;align-items:center;background:#eee4d9;border-radius:999px;padding:5px 9px;margin:3px;font-size:.78rem}
+.toast{position:fixed;right:18px;bottom:18px;background:#28231f;color:#fff;padding:12px 15px;border-radius:12px;box-shadow:var(--shadow);z-index:140;max-width:340px}
+.cook{position:fixed;inset:0;background:#fbf8f3;z-index:120;display:flex;flex-direction:column}.cook-top{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.cook-main{flex:1;display:grid;place-items:center;padding:28px;overflow:auto}.cook-step{max-width:850px;font-size:clamp(1.4rem,3vw,2.15rem);line-height:1.5;text-align:center}.cook-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.cook-progress{color:var(--muted)}
+
+@media(max-width:1100px) and (min-width:761px){
+  :root{--sidebar:220px}
+  .content{padding:20px}
+  .topbar{padding:12px 18px}
+}
+@media(max-width:980px){.recipe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{grid-template-columns:1fr}.side-panel{position:static}.choice-grid{grid-template-columns:1fr}}
+@media(max-width:760px){
+  :root{--mobile-pad:14px}
+  .app{min-height:100dvh}
+  .main{margin-left:0;width:100%;min-height:100dvh}
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;width:min(84vw,300px);height:100dvh;
+    transform:translateX(-105%);transition:transform .2s ease;padding-top:max(18px,env(safe-area-inset-top));
+    padding-bottom:max(18px,env(safe-area-inset-bottom));box-shadow:0 0 40px rgba(0,0,0,.28)
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:35;display:none}
+  .sidebar-backdrop.show{display:block}
+
+  .topbar{
+    padding:max(10px,env(safe-area-inset-top)) var(--mobile-pad) 10px;
+    gap:8px;align-items:center
+  }
+  .mobile-menu{display:inline-flex;min-width:44px;min-height:44px;align-items:center;justify-content:center;padding:8px}
+  .search-wrap{min-width:0}
+  .search-wrap input{padding:11px 12px 11px 36px;min-height:44px}
+  .top-actions{display:none}
+
+  .content{padding:14px var(--mobile-pad) calc(22px + env(safe-area-inset-bottom));width:100%;overflow-x:hidden}
+  .page-head{align-items:flex-start;flex-direction:column;margin-bottom:16px}
+  .page-head h1{font-size:1.55rem}
+  .page-head .btn{width:100%;min-height:46px}
+
+  .filter-row{overflow-x:auto;flex-wrap:nowrap;margin:0 calc(-1 * var(--mobile-pad)) 16px;padding:0 var(--mobile-pad) 4px;scrollbar-width:none}
+  .filter-row::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;min-height:40px}
+
+  .recipe-grid{grid-template-columns:1fr;gap:14px}
+  .recipe-card{border-radius:16px}
+  .card-photo{aspect-ratio:16/9}
+  .card-body{padding:14px}
+  .fav-btn{min-width:42px;min-height:42px;display:inline-grid;place-items:center;margin:-8px -8px 0 0}
+
+  .detail{grid-template-columns:1fr;gap:14px}
+  .hero{border-radius:18px}
+  .hero-photo{aspect-ratio:16/9}
+  .hero-body{padding:16px}
+  .hero h1{font-size:1.55rem;line-height:1.2}
+  .meta-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0}
+  .meta-cell{min-width:0;padding:10px 7px}
+  .meta-cell:nth-child(2){border-right:0}
+  .meta-cell:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .meta-cell strong{font-size:1rem;overflow-wrap:anywhere}
+  .servings-control{gap:6px}
+  .round{width:36px;height:36px;min-width:36px}
+  #portionInput{width:62px!important;min-height:38px}
+
+  .action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .action-row .btn{width:100%;min-height:46px;padding:10px 8px;white-space:normal}
+  .action-row .btn-primary,.action-row .btn-success{grid-column:1/-1}
+
+  .section-card{padding:16px;border-radius:16px;margin-top:14px}
+  .section-card h2{font-size:1.15rem}
+  .ingredient{gap:11px;padding:11px 0;line-height:1.45}
+  .ingredient input[type="checkbox"]{width:20px;height:20px;min-width:20px}
+  .steps{padding-left:24px}
+  .steps li{padding-bottom:15px}
+  .side-panel{position:static}
+  .side-card{padding:16px}
+
+  .form-card{padding:16px;border-radius:16px}
+  .photo-editor{grid-template-columns:1fr}
+  .photo-preview{aspect-ratio:16/9;min-height:0}
+  .photo-actions{display:grid;grid-template-columns:1fr 1fr}
+  .photo-actions .btn{width:100%}
+  .camera-only{display:inline-flex}
+
+  .form-grid{grid-template-columns:1fr;gap:12px}
+  .full,.form-section{grid-column:1}
+  .form-grid input,.form-grid textarea,.form-grid select{min-height:44px;scroll-margin-top:78px}
+  .form-grid textarea{min-height:120px}
+  .inline-list{gap:10px}
+  .inline-row{
+    grid-template-columns:70px 82px minmax(0,1fr) 42px;
+    gap:6px;align-items:start
+  }
+  .inline-row.step{grid-template-columns:34px minmax(0,1fr) 42px}
+  .inline-row input{width:100%;min-height:44px}
+  .icon-btn{min-width:42px;min-height:42px}
+  .form-actions{position:sticky;bottom:0;background:linear-gradient(to top,var(--panel) 75%,rgba(255,253,249,0));padding-top:14px;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:5}
+  .form-actions .btn{flex:1;min-height:46px}
+
+  .modal-backdrop{
+    align-items:end;padding:0;background:rgba(0,0,0,.5)
+  }
+  .modal{
+    width:100%;max-height:92dvh;border-radius:20px 20px 0 0;
+    padding:18px var(--mobile-pad) calc(18px + env(safe-area-inset-bottom))
+  }
+  .modal input,.modal textarea,.modal select{min-height:44px}
+  .choice-grid{grid-template-columns:1fr}
+  .modal-actions{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));background:var(--panel);padding:12px 0 calc(12px + env(safe-area-inset-bottom));z-index:4}
+  .modal-actions .btn{flex:1;min-height:46px}
+
+  .grocery-item{padding:11px 0}
+  .grocery-item input[type="checkbox"]{width:20px;height:20px;min-width:20px;margin-top:2px}
+
+  .toast{
+    left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:none;text-align:center
+  }
+
+  .cook{min-height:100dvh}
+  .cook-top{padding:max(12px,env(safe-area-inset-top)) 14px 12px;gap:10px}
+  .cook-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cook-main{padding:22px 16px}
+  .cook-step{font-size:clamp(1.3rem,6vw,1.9rem);line-height:1.45}
+  .cook-foot{padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
+  .cook-foot .btn{min-height:48px;min-width:110px}
+
+  .empty{padding:46px 12px}
+}
+
+@media(max-width:390px){
+  .action-row{grid-template-columns:1fr}
+  .action-row .btn-primary,.action-row .btn-success{grid-column:auto}
+  .inline-row{grid-template-columns:58px 70px minmax(0,1fr) 40px}
+  .meta-cell{padding:9px 5px}
+  .hero-body{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-icon">🍳</div><div>My Recipe Box</div></div>
+    <div class="nav">
+      <button data-page="recipes" class="active">🍽️ &nbsp;Recipes</button>
+      <button data-page="favorites">♥️ &nbsp;Favorites</button>
+      <button data-page="collections">📚 &nbsp;Collections</button>
+      <button data-page="recent">🕘 &nbsp;Recently Added</button>
+      <div class="divider"></div>
+      <button id="navAdd">＋ &nbsp;New Recipe</button>
+      <div class="divider"></div>
+      <div class="small">Data</div>
+      <button data-page="data">💾 &nbsp;Backup & Data</button>
+    </div>
+    <div class="sidebar-footer">Stored in this browser using IndexedDB.<br>Designed for free static hosting such as GitHub Pages.</div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="openSidebar(false)"></div>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="btn btn-ghost mobile-menu" id="menuBtn">☰</button>
+      <div class="search-wrap"><span>⌕</span><input id="globalSearch" type="search" placeholder="Search recipes, ingredients, tags..."></div>
+      <div class="top-actions">
+        <button class="btn btn-primary" id="addBtn">+ Add Recipe</button>
+      </div>
+    </div>
+    <div class="content" id="content"><div class="empty" id="startupState"><div class="emoji">🍳</div><h3>Loading Recipe Box…</h3></div></div>
+  </main>
+</div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<script>
+const starterRecipe = {
+  id: "builtin_mcdonalds_style_air_fryer_nuggets",
+  title: "McDonald's-Style Crispy Air Fryer Chicken Nuggets",
+  category: "Chicken",
+  time: "About 20 minutes",
+  servings: 4,
+  tags: ["air fryer","chicken","nuggets","kids","crispy"],
+  ingredients: [
+    "1 lb boneless, skinless chicken breast",
+    "1 tsp salt",
+    "1/2 tsp garlic powder",
+    "1/2 tsp onion powder",
+    "1/4 tsp white pepper",
+    "2 tbsp cornstarch for the chicken mixture",
+    "1/2 cup all-purpose flour",
+    "1/2 cup cornstarch for coating",
+    "1 tsp salt for coating",
+    "1/2 tsp garlic powder for coating",
+    "1/2 tsp onion powder for coating",
+    "1/4 tsp white pepper for coating",
+    "1/2 tsp paprika",
+    "1 large egg",
+    "1/2 cup cold water",
+    "Olive oil spray or avocado oil spray"
+  ],
+  instructions: [
+    "Cut the chicken into chunks and blend with salt, garlic powder, onion powder, white pepper, and 2 tablespoons cornstarch until fairly smooth.",
+    "Wet or lightly oil your hands and shape the chicken into small, thin nugget shapes.",
+    "Preheat the air fryer to 375°F for about 3 minutes.",
+    "In one bowl, mix flour, cornstarch, salt, garlic powder, onion powder, white pepper, and paprika.",
+    "In another bowl, whisk the egg and cold water together.",
+    "Add the egg-and-water mixture to the dry ingredients and whisk until you have a smooth, fairly thin batter.",
+    "Lightly dust each nugget with a little flour or cornstarch first. This helps the wet batter stick, especially when you are not freezing the nuggets.",
+    "Dip each nugget into the wet batter and let the excess drip off.",
+    "Lightly spray the air fryer basket with oil. If using parchment, use perforated air-fryer parchment so air can circulate.",
+    "Place the nuggets in a single layer with a little space between each one. Do not overcrowd the basket.",
+    "Lightly spray the tops of the nuggets with olive oil or avocado oil spray. Make sure any obvious dry batter spots get a little oil.",
+    "Air fry at 375°F for 6 minutes.",
+    "Carefully flip the nuggets. Lightly spray any dry-looking spots on the second side.",
+    "Continue air frying at 375°F for another 3–4 minutes.",
+    "For extra crispiness, increase the air fryer to 400°F for the final 1–2 minutes.",
+    "Remove the nuggets as soon as the centers reach 165°F so they stay juicy.",
+    "Let them rest on a wire rack for 1–2 minutes so the bottoms stay crisp instead of steaming."
+  ],
+  notes: "These nuggets are designed for the air fryer and do not need to be frozen first. Keep them small and fairly thin so the coating crisps before the inside dries out. Cornstarch helps create a lighter, crispier coating. A light oil spray is important, but too much oil can make the batter heavy or soggy. Cook in batches if necessary rather than crowding the basket."
+};
+
+
+const macCheeseRecipe = {
+  id: "builtin_mac_cheese_2_servings",
+  title: "Creamy Mac & Cheese — 2 Servings",
+  category: "Pasta",
+  time: "About 20 minutes",
+  servings: 2,
+  tags: ["mac and cheese","pasta","cheddar","quick"],
+  ingredients: [
+    "1 cup dry elbow macaroni",
+    "1 tbsp butter",
+    "1 tbsp all-purpose flour",
+    "3/4 cup milk",
+    "1/2 cup shredded cheddar cheese",
+    "1/2 cup shredded mixed cheese",
+    "1/4 tsp salt, or to taste",
+    "A small pinch of black pepper",
+    "Optional: pinch of garlic powder or paprika"
+  ],
+  instructions: [
+    "Cook the macaroni in salted water until just tender. Drain and set aside.",
+    "In the same pot, melt the butter over low to medium heat.",
+    "Add the flour and stir continuously for about 30–60 seconds. Do not let it brown.",
+    "Slowly pour in the milk while whisking or stirring so the sauce stays smooth.",
+    "Cook for 2–3 minutes, stirring, until the milk mixture thickens slightly.",
+    "Turn the heat to low. Add the cheddar cheese and mixed cheese a little at a time, stirring until fully melted and creamy.",
+    "Season with salt, black pepper, and optional garlic powder or paprika.",
+    "Add the cooked macaroni back to the pot and stir until every piece is coated.",
+    "If the sauce becomes too thick, add 1–2 tablespoons of milk until it reaches the consistency you like.",
+    "Serve immediately while hot and creamy."
+  ],
+  notes: "For a creamier result, keep the heat low once the cheese goes in. High heat can make the cheese sauce grainy or oily. If reheating later, add a splash of milk before warming."
+};
+
+
+const chickfilaSandwichRecipe = {
+  id: "builtin_chickfila_style_fried_chicken_sandwich",
+  title: "Chick-fil-A–Style Crispy Air Fryer Chicken Sandwich",
+  category: "Chicken",
+  time: "About 35 minutes",
+  servings: 2,
+  tags: ["air fryer","chicken sandwich","crispy chicken","copycat","lunch","dinner"],
+  ingredients: [
+    "2 small boneless, skinless chicken breasts",
+    "1 cup dill pickle juice",
+    "1/2 cup milk",
+    "1 large egg",
+    "1 cup all-purpose flour",
+    "2 tbsp cornstarch",
+    "2 tbsp powdered sugar",
+    "1 tsp paprika",
+    "1 tsp salt",
+    "1/2 tsp black pepper",
+    "1/2 tsp garlic powder",
+    "1/2 tsp onion powder",
+    "1/4 tsp cayenne pepper, optional",
+    "Olive oil spray or avocado oil spray",
+    "2 soft hamburger buns",
+    "1 tbsp butter",
+    "Dill pickle slices"
+  ],
+  instructions: [
+    "Slice each chicken breast horizontally if needed and gently pound to an even thickness of about 1/2 inch.",
+    "Place the chicken in the pickle juice and refrigerate for 20–30 minutes. Do not marinate much longer or the chicken can become overly salty.",
+    "Preheat the air fryer to 390°F for about 3 minutes.",
+    "In a shallow bowl, whisk together the milk and egg.",
+    "In another bowl, mix flour, cornstarch, powdered sugar, paprika, salt, black pepper, garlic powder, onion powder, and optional cayenne.",
+    "Remove the chicken from the pickle juice and pat it lightly with paper towel. It should be damp, not dripping wet.",
+    "Dip each piece into the milk-and-egg mixture, then press firmly into the flour mixture. Really press the flour onto the chicken so the coating sticks.",
+    "For extra crispy, craggy breading, drizzle about 1 tablespoon of the milk-and-egg mixture into the flour bowl and rub it through the flour with your fingertips to create small clumps before coating the chicken.",
+    "Lightly spray the air fryer basket with oil. Place the chicken in a single layer with space around each piece.",
+    "Spray the top of the breading thoroughly but lightly with olive oil or avocado oil spray. Make sure no large dry flour patches remain.",
+    "Air fry at 390°F for 6 minutes.",
+    "Carefully flip the chicken. Spray any dry-looking flour spots on the second side with a light coating of oil.",
+    "Air fry another 5–7 minutes at 390°F, depending on thickness, until golden and the center reaches 165°F.",
+    "For an extra-crispy finish, increase the temperature to 400°F for the final 1–2 minutes. Watch closely so the coating does not burn.",
+    "Let the chicken rest on a wire rack for 2–3 minutes rather than on a flat plate so the bottom stays crispy.",
+    "Lightly butter the cut sides of the buns. Air fry the buns cut-side up at 375°F for 1–2 minutes, just until lightly toasted.",
+    "Place 2–3 dill pickle slices on the bottom bun, add the crispy chicken, then top with the other bun and serve immediately."
+  ],
+  notes: "For air-fryer crispiness, cornstarch and oil coverage are important. Spray the breading until the flour looks lightly moistened, but do not soak it. Avoid parchment unless it is perforated because unrestricted airflow makes the coating crispier. Do not overcrowd the basket. A wire rack during the short rest helps prevent the bottom from steaming and turning soft."
+};
+
+
+const sweetPotatoWedgesRecipe = {
+  id: "builtin_air_fryer_sweet_potato_wedges",
+  title: "Air-Fryer Sweet Potato Wedges",
+  category: "Healthy Sides",
+  time: "About 25 minutes",
+  servings: 3,
+  tags: ["air fryer","sweet potato","healthy","side dish","vegetarian","crispy"],
+  ingredients: [
+    "2 medium sweet potatoes",
+    "1 tbsp olive oil",
+    "1–2 tsp cornstarch",
+    "1/2 tsp paprika",
+    "1/2 tsp garlic powder",
+    "1/4 tsp onion powder",
+    "1/2 tsp salt",
+    "1/4 tsp black pepper"
+  ],
+  instructions: [
+    "Wash and dry the sweet potatoes well. Peel them if you prefer, or leave the skin on.",
+    "Cut them into even wedges about 1/2 inch thick. Try to keep the pieces similar in size so they cook evenly.",
+    "Pat the wedges very dry with paper towels. Removing surface moisture is important for crispiness.",
+    "Toss the wedges with olive oil until lightly coated.",
+    "Sprinkle on the cornstarch, paprika, garlic powder, onion powder, salt, and black pepper. Toss until evenly coated. Use only a light coating of cornstarch.",
+    "Preheat the air fryer to 360°F for about 3 minutes.",
+    "Place the wedges directly in the air-fryer basket in a single layer with space between them. Do not use regular parchment paper because it blocks airflow underneath and can make the bottoms soggy.",
+    "Air fry at 360°F for 10 minutes.",
+    "Flip every wedge so the previously bottom side is exposed to the hot air.",
+    "Increase the temperature to 375°F and air fry for another 6–8 minutes, checking near the end.",
+    "If they need more browning, increase to 400°F for only the final 1–2 minutes. Watch closely because sweet potatoes can burn quickly.",
+    "Remove as soon as the edges are browned and the centers are tender.",
+    "Let them sit for about 1 minute before serving. Do not leave them sitting in the hot air fryer after cooking."
+  ],
+  notes: "For the crispiest result, avoid regular parchment paper. It blocks airflow and can cause a burnt top with a soggy bottom. Direct basket contact or perforated air-fryer parchment works better. Do not overcrowd the basket; cook in batches if needed. Sweet potatoes contain natural sugars, so prolonged cooking at 400°F can burn them quickly."
+};
+
+
+const chickenShawarmaRecipe = {
+  id: "builtin_chicken_shawarma_3_servings",
+  title: "Chicken Shawarma — 3 Servings",
+  category: "Chicken",
+  time: "About 30 minutes",
+  servings: 3,
+  tags: ["chicken","shawarma","air fryer","middle eastern","3 servings"],
+  ingredients: [
+    "1 1/2 lb boneless, skinless chicken thighs",
+    "2 tbsp plain Greek yogurt",
+    "1 tbsp olive oil",
+    "1 tbsp lemon juice",
+    "2 cloves garlic, minced",
+    "1 tsp ground cumin",
+    "1 tsp paprika",
+    "1/2 tsp ground coriander",
+    "1/2 tsp turmeric",
+    "1/4 tsp ground cinnamon",
+    "1 tsp salt",
+    "1/2 tsp black pepper"
+  ],
+  instructions: [
+    "Pat the chicken thighs dry and place them in a bowl.",
+    "Add Greek yogurt, olive oil, lemon juice, garlic, cumin, paprika, coriander, turmeric, cinnamon, salt, and black pepper.",
+    "Mix until the chicken is evenly coated. Marinate for at least 15 minutes if you have time.",
+    "Preheat the air fryer to 380°F for about 3 minutes.",
+    "Arrange the thighs in a single layer with space between them.",
+    "Air fry at 380°F for 8 minutes, then flip.",
+    "Cook another 6–8 minutes until browned and the thickest part reaches at least 165°F.",
+    "Rest for 3–5 minutes, then slice.",
+    "Serve with rice, pita, salad, cucumbers, tomatoes, or a yogurt-garlic sauce."
+  ],
+  notes: "For extra browning, finish at 400°F for 1–2 minutes. Avoid regular parchment so the bottoms can brown properly."
+};
+
+const groundChickenKebabRecipe = {
+  id: "builtin_ground_chicken_kebab_3_servings",
+  title: "Ground Chicken Kebab — 3 Servings",
+  category: "Chicken",
+  time: "About 25 minutes",
+  servings: 3,
+  tags: ["ground chicken","kebab","air fryer","3 servings"],
+  ingredients: [
+    "1 lb ground chicken",
+    "1/4 small onion, very finely grated",
+    "2 cloves garlic, minced",
+    "2 tbsp chopped cilantro or parsley",
+    "1 tsp ground cumin",
+    "1 tsp paprika",
+    "1/2 tsp ground coriander",
+    "1/2 tsp salt",
+    "1/4 tsp black pepper",
+    "1 tbsp breadcrumbs",
+    "1 tsp olive oil"
+  ],
+  instructions: [
+    "Place the ground chicken in a bowl.",
+    "Add grated onion, garlic, cilantro or parsley, cumin, paprika, coriander, salt, black pepper, breadcrumbs, and olive oil.",
+    "Mix just until combined. Do not overmix or the kebabs can become dense.",
+    "Divide into 6 equal portions and shape into short logs or flattened kebab patties.",
+    "Preheat the air fryer to 380°F for about 3 minutes.",
+    "Lightly spray the basket with oil and arrange the kebabs in a single layer.",
+    "Air fry at 380°F for 7 minutes.",
+    "Flip carefully and cook another 5–7 minutes until browned and the centers reach at least 165°F.",
+    "Rest for 2–3 minutes before serving."
+  ],
+  notes: "If the mixture feels too soft, add another tablespoon of breadcrumbs. Slightly flattened kebabs cook more evenly than very thick logs."
+};
+
+const garlicPaprikaChickenRecipe = {
+  id: "builtin_garlic_paprika_chicken_thighs_3_servings",
+  title: "Garlic Paprika Chicken Thighs — 3 Servings",
+  category: "Chicken",
+  time: "About 25 minutes",
+  servings: 3,
+  tags: ["chicken thighs","garlic","paprika","air fryer","3 servings"],
+  ingredients: [
+    "1 1/2 lb boneless, skinless chicken thighs",
+    "1 tbsp olive oil",
+    "1 1/2 tsp paprika",
+    "1 tsp garlic powder",
+    "1/2 tsp onion powder",
+    "1 tsp salt",
+    "1/2 tsp black pepper",
+    "1/2 tsp dried oregano, optional",
+    "1/2 tsp lemon juice, optional for serving"
+  ],
+  instructions: [
+    "Pat the chicken thighs dry.",
+    "Toss them with olive oil, paprika, garlic powder, onion powder, salt, black pepper, and optional oregano.",
+    "Preheat the air fryer to 380°F for about 3 minutes.",
+    "Place the chicken in a single layer without crowding.",
+    "Air fry at 380°F for 8 minutes.",
+    "Flip and cook another 6–8 minutes until browned and the thickest part reaches at least 165°F.",
+    "For crispier edges, finish at 400°F for 1–2 minutes.",
+    "Rest for 3–5 minutes before serving. Add a small squeeze of lemon if desired."
+  ],
+  notes: "Drying the thighs well before seasoning helps the surface brown better. This recipe also works well in a skillet over medium heat."
+};
+
+const teriyakiChickenRecipe = {
+  id: "builtin_teriyaki_chicken_thighs_3_servings",
+  title: "Teriyaki Chicken Thighs — 3 Servings",
+  category: "Chicken",
+  time: "About 30 minutes",
+  servings: 3,
+  tags: ["chicken thighs","teriyaki","pan seared","air fryer","3 servings"],
+  ingredients: [
+    "1 1/2 lb boneless, skinless chicken thighs",
+    "1 tsp neutral oil",
+    "1/4 cup low-sodium soy sauce",
+    "2 tbsp water",
+    "1 1/2 tbsp honey or brown sugar",
+    "1 tbsp rice vinegar",
+    "1 tsp sesame oil",
+    "2 cloves garlic, minced",
+    "1 tsp grated fresh ginger",
+    "1 tsp cornstarch",
+    "1 tbsp water for cornstarch slurry"
+  ],
+  instructions: [
+    "Whisk soy sauce, 2 tablespoons water, honey or brown sugar, rice vinegar, sesame oil, garlic, and ginger together.",
+    "In a small separate cup, mix cornstarch with 1 tablespoon water to make a slurry.",
+    "Pat the chicken dry.",
+    "For pan searing, heat 1 teaspoon oil in a skillet over medium heat.",
+    "Cook the chicken thighs for about 5–6 minutes on the first side, then flip and cook another 4–6 minutes until nearly done.",
+    "Pour the teriyaki sauce into the pan and simmer for 1–2 minutes.",
+    "Stir in the cornstarch slurry and cook until the sauce thickens and coats the chicken.",
+    "Continue cooking until the chicken reaches at least 165°F.",
+    "For air frying instead, cook the thighs at 380°F for about 14–16 minutes, flipping halfway, then toss with warmed teriyaki sauce after cooking.",
+    "Rest for 2–3 minutes, slice, and spoon extra sauce over the top."
+  ],
+  notes: "For the air fryer, do not coat the chicken heavily with teriyaki sauce before cooking because the sugar can burn. Add the sauce after the chicken is cooked or only during the final minute."
+};
+
+
+const butterChickenRecipe = {
+  id: "builtin_butter_chicken_3_servings",
+  title: "Butter Chicken — 3 Servings",
+  category: "Indian",
+  time: "About 40 minutes",
+  servings: 3,
+  tags: ["indian","butter chicken","chicken","curry","3 servings"],
+  ingredients: [
+    "1 1/4 lb boneless, skinless chicken thighs, cut into bite-size pieces",
+    "1/3 cup plain Greek yogurt",
+    "1 tbsp lemon juice",
+    "1 tsp garam masala",
+    "1/2 tsp ground cumin",
+    "1/2 tsp paprika",
+    "1/2 tsp turmeric",
+    "1/2 tsp salt",
+    "1 tbsp olive oil or neutral oil",
+    "1 tbsp butter",
+    "1/2 medium onion, finely chopped",
+    "2 cloves garlic, minced",
+    "1 tsp grated fresh ginger",
+    "1 tsp garam masala for the sauce",
+    "1/2 tsp ground cumin for the sauce",
+    "1/2 tsp paprika for the sauce",
+    "1/4 tsp chili powder, optional",
+    "3/4 cup tomato puree or crushed tomatoes",
+    "1/2 cup heavy cream or half-and-half",
+    "1/4 cup water, as needed",
+    "1/2 tsp salt, or to taste",
+    "1 tsp honey or sugar, optional",
+    "1 tbsp chopped cilantro, optional"
+  ],
+  instructions: [
+    "In a bowl, mix yogurt, lemon juice, garam masala, cumin, paprika, turmeric, and salt.",
+    "Add the chicken and coat well. Marinate for at least 15 minutes if you have time.",
+    "Heat oil in a large skillet over medium-high heat.",
+    "Add the chicken in a single layer and cook for about 6–8 minutes, turning occasionally, until browned and nearly cooked through. Remove to a plate.",
+    "Reduce the heat to medium and add the butter.",
+    "Add the chopped onion and cook for 4–5 minutes until softened.",
+    "Add garlic and ginger and cook for about 30 seconds.",
+    "Stir in garam masala, cumin, paprika, and optional chili powder for about 20–30 seconds.",
+    "Add the tomato puree and simmer for 5–7 minutes, stirring occasionally.",
+    "Reduce the heat to low and stir in the cream.",
+    "Return the chicken and any juices to the skillet.",
+    "Simmer gently for 5–7 minutes until the chicken reaches at least 165°F and the sauce is creamy.",
+    "Add a little water if the sauce becomes too thick.",
+    "Taste and adjust salt. Add honey or sugar if you want a slightly sweeter restaurant-style flavor.",
+    "Garnish with cilantro and serve with basmati rice or naan."
+  ],
+  notes: "Keep the heat low after adding the cream so the sauce stays smooth. Chicken thighs stay juicier than breast meat and work especially well for butter chicken."
+};
+
+const tandooriChickenThighsRecipe = {
+  id: "builtin_tandoori_chicken_thighs_3_servings",
+  title: "Tandoori Chicken Thighs — 3 Servings",
+  category: "Indian",
+  time: "About 30 minutes plus marinating",
+  servings: 3,
+  tags: ["indian","tandoori","chicken thighs","air fryer","3 servings"],
+  ingredients: [
+    "1 1/2 lb boneless, skinless chicken thighs",
+    "1/2 cup plain Greek yogurt",
+    "1 tbsp lemon juice",
+    "1 tbsp olive oil",
+    "2 cloves garlic, minced",
+    "1 tsp grated fresh ginger",
+    "1 1/2 tsp garam masala",
+    "1 tsp paprika",
+    "1/2 tsp ground cumin",
+    "1/2 tsp ground coriander",
+    "1/2 tsp turmeric",
+    "1/4 tsp cayenne or chili powder, optional",
+    "1 tsp salt",
+    "1/2 tsp black pepper",
+    "Lemon wedges and chopped cilantro for serving, optional"
+  ],
+  instructions: [
+    "Pat the chicken thighs dry.",
+    "In a bowl, mix yogurt, lemon juice, olive oil, garlic, ginger, garam masala, paprika, cumin, coriander, turmeric, optional cayenne, salt, and black pepper.",
+    "Add the chicken and coat thoroughly.",
+    "Marinate for at least 30 minutes. For deeper flavor, refrigerate for 2–8 hours.",
+    "Preheat the air fryer to 380°F for about 3 minutes.",
+    "Shake off only the excess marinade, leaving a thin coating on the chicken.",
+    "Place the thighs in a single layer with space between them.",
+    "Air fry at 380°F for 8 minutes.",
+    "Flip the thighs and cook another 6–8 minutes until browned and the thickest part reaches at least 165°F.",
+    "For more charred tandoori-style edges, increase to 400°F for the final 1–2 minutes.",
+    "Rest for 3–5 minutes before slicing.",
+    "Serve with lemon wedges, cilantro, rice, naan, or cucumber-yogurt sauce."
+  ],
+  notes: "Do not use regular parchment if you want good browning underneath. The yogurt marinade keeps the chicken juicy, while the brief 400°F finish gives better char without drying it out."
+};
+
+
+
+const simpleTurkeyChiliRecipe = {
+  id: "builtin_simple_turkey_chili_allrecipes",
+  title: "Simple Turkey Chili",
+  description: "A simple, hearty turkey chili with ground turkey, kidney beans, crushed tomatoes, onion, garlic, and warming spices.",
+  category: "Dinner",
+  cuisine: "American",
+  cookingMethods: ["Stovetop"],
+  time: "1 hour",
+  prepTime: "15 minutes",
+  cookTime: "45 minutes",
+  totalTime: "1 hour",
+  servings: 8,
+  tags: ["turkey", "chili", "ground turkey", "stovetop", "family dinner"],
+  ingredients: [
+    "1 1/2 teaspoons olive oil",
+    "1 pound ground turkey",
+    "1 onion, chopped",
+    "2 cups water",
+    "1 (28-ounce) can crushed tomatoes",
+    "1 (16-ounce) can kidney beans, drained, rinsed, and mashed",
+    "1 tablespoon minced garlic",
+    "2 tablespoons chili powder, or to taste",
+    "1/2 teaspoon paprika, or to taste",
+    "1/2 teaspoon dried oregano",
+    "1/2 teaspoon ground cayenne pepper, or to taste",
+    "1/2 teaspoon ground cumin, or to taste",
+    "1/2 teaspoon salt",
+    "1/2 teaspoon ground black pepper"
+  ],
+  instructions: [
+    "Heat the olive oil in a large pot over medium heat. Add the ground turkey and cook, stirring, until evenly browned, about 6 to 8 minutes.",
+    "Stir in the chopped onion and continue cooking until the onion softens.",
+    "Add the water, crushed tomatoes, kidney beans, and minced garlic. Stir to combine.",
+    "Stir in the chili powder, paprika, oregano, cayenne pepper, cumin, salt, and black pepper.",
+    "Bring the chili to a boil. Reduce the heat to low, cover, and simmer for about 30 minutes, until the flavors blend and the chili thickens slightly."
+  ],
+  notes: "Adjust the chili powder and cayenne pepper to your taste. The source also suggests adding vegetables such as celery or bell peppers to make it heartier. For a slow-cooker version, brown the turkey and onion first, then transfer everything to a slow cooker and cook on High for 3 to 4 hours or Low for 6 to 8 hours.",
+  sourceType: "web",
+  sourceUrl: "https://www.allrecipes.com/recipe/80969/simple-turkey-chili/",
+  sourceSite: "Allrecipes",
+  author: "Amanda Ingraham"
+};
+
+
+const APP_VERSION="2.0.0";
+const SCHEMA_VERSION=2;
+const DB_NAME="my_recipe_box_db";
+const DB_VERSION=1;
+const OLD_STORAGE_KEY="my_recipe_box_v1";
+const GROCERY_QUEUE_KEY="my_grocery_bridge_v1";
+
+let db=null;
+
+let state={recipes:[],collections:[],page:"recipes",search:"",filter:"all",currentId:null,servingMultiplier:1,editingId:null};
+let editPhotoData="";
+let editPhotoChanged=false;
+
+const els={
+  content:document.getElementById("content"),
+  sidebar:document.getElementById("sidebar"),
+  sidebarBackdrop:document.getElementById("sidebarBackdrop"),
+  globalSearch:document.getElementById("globalSearch"),
+  menuBtn:document.getElementById("menuBtn"),
+  addBtn:document.getElementById("addBtn"),
+  navAdd:document.getElementById("navAdd"),
+  modalRoot:document.getElementById("modalRoot"),
+  toastRoot:document.getElementById("toastRoot")
+};
+
+
+function uid(prefix="id"){return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,9)}`}
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{
+      const d=req.result;
+      if(!d.objectStoreNames.contains("recipes")) d.createObjectStore("recipes",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("collections")) d.createObjectStore("collections",{keyPath:"id"});
+      if(!d.objectStoreNames.contains("meta")) d.createObjectStore("meta",{keyPath:"key"});
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+function tx(store,mode="readonly"){return db.transaction(store,mode).objectStore(store)}
+function idbAll(store){return new Promise((res,rej)=>{const r=tx(store).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+function idbGet(store,key){return new Promise((res,rej)=>{const r=tx(store).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error)})}
+function idbPut(store,val){return new Promise((res,rej)=>{const r=tx(store,"readwrite").put(val);r.onsuccess=()=>res(val);r.onerror=()=>rej(r.error)})}
+function idbDelete(store,key){return new Promise((res,rej)=>{const r=tx(store,"readwrite").delete(key);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function idbClear(store){return new Promise((res,rej)=>{const r=tx(store,"readwrite").clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+
+function normalizeLegacy(r,origin="user"){
+  const title=(r.title||"Untitled Recipe").replace(/\s+[—-]\s*\d+\s*Servings?$/i,"");
+  const m=(r.title||"").match(/\s+[—-]\s*(\d+)\s*Servings?$/i);
+  const now=new Date().toISOString();
+  return {
+    id:r.id||uid("recipe"), title, description:r.description||"", category:r.category||"",
+    cuisine:r.cuisine||inferCuisine(r), cookingMethods:r.cookingMethods||inferMethods(r),
+    tags:Array.isArray(r.tags)?r.tags:[], collections:Array.isArray(r.collections)?r.collections:[],
+    servings:Number(r.servings||m?.[1]||3)||3, yieldText:r.yieldText||"",
+    prepTime:r.prepTime||"", cookTime:r.cookTime||r.time||"", restTime:r.restTime||"", totalTime:r.totalTime||r.time||"",
+    ingredients:(r.ingredients||[]).map((x,i)=>typeof x==="string"?parseIngredient(x,i):({...x,id:x.id||uid("ing")})),
+    instructions:(r.instructions||[]).map((x,i)=>typeof x==="string"?{id:uid("step"),text:x,section:"",timerMinutes:detectTimer(x)}:{...x,id:x.id||uid("step")}),
+    notes:r.notes||"", photo:r.photo||"", photoCredit:r.photoCredit||"", photoSource:r.photoSource||"", sourceType:r.sourceType||origin, sourceUrl:r.sourceUrl||"",
+    sourceSite:r.sourceSite||"", author:r.author||"", favorite:!!r.favorite, rating:r.rating||0,
+    createdAt:r.createdAt||now, updatedAt:r.updatedAt||now, lastCooked:r.lastCooked||null, timesCooked:r.timesCooked||0,
+    origin:r.origin||origin, userModified:!!r.userModified
+  };
+}
+function inferCuisine(r){
+  const s=[r.category,...(r.tags||[])].join(" ").toLowerCase();
+  if(s.includes("indian")) return "Indian"; if(s.includes("middle eastern")||s.includes("shawarma")) return "Middle Eastern"; return "";
+}
+function inferMethods(r){
+  const s=[r.title,r.notes,...(r.tags||[]),...(r.instructions||[])].join(" ").toLowerCase(), a=[];
+  if(s.includes("air fry")) a.push("Air Fryer"); if(s.includes("skillet")||s.includes("pan sear")) a.push("Pan"); if(s.includes("oven")||s.includes("bake")) a.push("Oven");
+  return a;
+}
+function detectTimer(s){const m=String(s).match(/(\d+)(?:\s*[–-]\s*(\d+))?\s*minutes?/i);return m?Number(m[2]||m[1]):null}
+function parseIngredient(raw,i=0){
+  const text=String(raw).trim();
+  const frac={"¼":.25,"½":.5,"¾":.75,"⅓":1/3,"⅔":2/3,"⅛":.125,"⅜":.375,"⅝":.625,"⅞":.875};
+  let qty=null,unit="",name=text,prep="";
+
+  const normalizeFraction=t=>{
+    t=String(t).trim();
+    if(frac[t]!=null)return frac[t];
+    if(/^\d+\s+\d+\/\d+$/.test(t)){
+      const [a,b]=t.split(/\s+/);const [n,d]=b.split("/").map(Number);return Number(a)+n/d;
+    }
+    if(/^\d+\/\d+$/.test(t)){const [n,d]=t.split("/").map(Number);return n/d}
+    if(/^\d+(?:\.\d+)?$/.test(t))return Number(t);
+    return null;
+  };
+
+  // Supports 1, 1.5, 1/2, 1 1/2, ½, etc.
+  const q=text.match(/^(\d+\s+\d+\/\d+|\d+(?:\.\d+)?|\d+\/\d+|[¼½¾⅓⅔⅛⅜⅝⅞])\s*/);
+  if(q){
+    qty=normalizeFraction(q[1]);
+    name=text.slice(q[0].length);
+
+    // Common cooking units. Keep package-size text such as "(28-ounce) can" in the ingredient name.
+    const um=name.match(/^(tablespoons?|tbsp|teaspoons?|tsp|cups?|fluid ounces?|fl oz|ounces?|oz|pounds?|lbs?|lb|grams?|g|kilograms?|kg|milliliters?|ml|liters?|l|cloves?|cans?|packages?|packets?|sticks?|slices?|pieces?|pinches?|pinch|dashes?|dash)\b\.?\s*/i);
+    if(um){unit=um[1];name=name.slice(um[0].length)}
+  }
+
+  return {
+    id:uid("ing"),
+    rawText:text,
+    quantity:qty,
+    unit,
+    name:name.trim(),
+    preparation:prep,
+    section:"",
+    groceryCategory:guessGrocery(name),
+    optional:/optional/i.test(text)
+  };
+}
+function guessGrocery(name){
+  const s=String(name).toLowerCase();
+  if(/chicken|beef|pork|shrimp|fish|turkey/.test(s))return"Meat & Seafood";
+  if(/milk|cheese|yogurt|butter|cream|egg/.test(s))return"Dairy & Eggs";
+  if(/onion|garlic|lemon|lime|potato|tomato|cilantro|parsley|ginger|pepper/.test(s))return"Produce";
+  if(/paprika|cumin|turmeric|coriander|salt|cinnamon|garam|oregano/.test(s))return"Spices & Seasonings";
+  if(/soy sauce|vinegar|ketchup|mustard|pickle/.test(s))return"Sauces & Condiments";
+  if(/flour|cornstarch|sugar|honey|rice|pasta|macaroni|breadcrumbs/.test(s))return"Pantry";
+  return"Other";
+}
+function formatQty(n){
+  if(n==null||Number.isNaN(Number(n)))return"";
+  const v=Number(n), whole=Math.floor(v), f=v-whole;
+  const map=[[.125,"⅛"],[.25,"¼"],[.333,"⅓"],[.375,"⅜"],[.5,"½"],[.625,"⅝"],[.667,"⅔"],[.75,"¾"],[.875,"⅞"]];
+  let best=map.reduce((a,b)=>Math.abs(f-b[0])<Math.abs(f-a[0])?b:a,[0,""]);
+  if(f<.04)return String(whole);
+  if(Math.abs(f-best[0])<.04)return `${whole?whole+" ":""}${best[1]}`;
+  return String(Math.round(v*100)/100);
+}
+function displayIngredient(i,m=1){
+  if(i.quantity!=null && Number.isFinite(Number(i.quantity))){
+    const scaled=Number(i.quantity)*Number(m||1);
+    const q=formatQty(scaled);
+    return [q,i.unit,i.name].filter(Boolean).join(" ").replace(/\s+/g," ").trim() + (i.preparation?`, ${i.preparation}`:"");
+  }
+  return i.rawText||i.name;
+}
+
+
+function expectedBuiltinServings(id){
+  const map={
+    "builtin_mcdonalds_style_air_fryer_nuggets":4,
+    "builtin_mac_cheese_2_servings":2,
+    "builtin_chickfila_style_fried_chicken_sandwich":2,
+    "builtin_air_fryer_sweet_potato_wedges":3,
+    "builtin_chicken_shawarma_3_servings":3,
+    "builtin_ground_chicken_kebab_3_servings":3,
+    "builtin_garlic_paprika_chicken_thighs_3_servings":3,
+    "builtin_teriyaki_chicken_thighs_3_servings":3,
+    "builtin_butter_chicken_3_servings":3,
+    "builtin_tandoori_chicken_thighs_3_servings":3,
+    "builtin_simple_turkey_chili_allrecipes":8
+  };
+  return map[id]||null;
+}
+
+async function repairBuiltinServingMetadata(){
+  const all=await idbAll("recipes");
+  for(const r of all){
+    const expected=expectedBuiltinServings(r.id);
+    if(!expected)continue;
+
+    // Only auto-repair built-in recipes that have not been user modified.
+    // This avoids overwriting an intentional serving change made by the user.
+    if(!r.userModified && Number(r.servings)!==expected){
+      r.servings=expected;
+      r.updatedAt=new Date().toISOString();
+      await idbPut("recipes",r);
+    }
+  }
+}
+
+
+
+function applyDefaultRecipePhoto(r){
+  const photoMap={
+    "builtin_mcdonalds_style_air_fryer_nuggets":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Nuggets.jpg?width=1200",credit:"James Palinsad / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Nuggets.jpg"},
+    "builtin_mac_cheese_2_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Original%20Mac%20n%20Cheese%20.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Original_Mac_n_Cheese_.jpg"},
+    "builtin_chickfila_style_fried_chicken_sandwich":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/ChickFilA-ChickenSandwich.jpg?width=1200",credit:"J. Reed / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:ChickFilA-ChickenSandwich.jpg"},
+    "builtin_air_fryer_sweet_potato_wedges":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Sweet%20potato%20waffle%20fries%20%28cropped%29.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Sweet_potato_waffle_fries_(cropped).jpg"},
+    "builtin_chicken_shawarma_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Handmade%20Chicken%20Shawarma%20Wrap%20-%20Lavash.jpg?width=1200",credit:"Andy Li / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Handmade_Chicken_Shawarma_Wrap_-_Lavash.jpg"},
+    "builtin_ground_chicken_kebab_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Tikka%20Kebab.jpg?width=1200",credit:"Sumit Surai / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Tikka_Kebab.jpg"},
+    "builtin_garlic_paprika_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20food.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_food.jpg"},
+    "builtin_teriyaki_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Teriyaki%20%28with%20rice%20and%20slaw%29%20at%20Toshi%E2%80%99s%20Teriyaki%20Grill%2C%20Seattle%2C%20Washington.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Teriyaki_(with_rice_and_slaw)_at_Toshi%E2%80%99s_Teriyaki_Grill,_Seattle,_Washington.jpg"},
+    "builtin_butter_chicken_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Butter%20Chicken%20%26%20Butter%20Naan%20-%20Home%20-%20Chandigarh%20-%20India%20-%200006.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Butter_Chicken_%26_Butter_Naan_-_Home_-_Chandigarh_-_India_-_0006.jpg"},
+    "builtin_tandoori_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Tandoori%20Island.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Tandoori_Island.jpg"},
+    "builtin_simple_turkey_chili_allrecipes":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chili%20con%20carne%20%285034005470%29.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chili_con_carne_(5034005470).jpg"}
+  };
+  const p=photoMap[r?.id];
+  if(p && !r.photo){
+    r.photo=p.url;
+    r.photoCredit=p.credit;
+    r.photoSource=p.source;
+  }
+  return r;
+}
+
+async function seedExistingRecipeWebPhotos(){
+  const flag=await idbGet("meta","builtinWebPhotosV1");
+  if(flag?.value===true)return;
+
+  const photoMap={
+    "builtin_mcdonalds_style_air_fryer_nuggets":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Nuggets.jpg?width=1200",credit:"James Palinsad / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Nuggets.jpg"},
+    "builtin_mac_cheese_2_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Original%20Mac%20n%20Cheese%20.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Original_Mac_n_Cheese_.jpg"},
+    "builtin_chickfila_style_fried_chicken_sandwich":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/ChickFilA-ChickenSandwich.jpg?width=1200",credit:"J. Reed / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:ChickFilA-ChickenSandwich.jpg"},
+    "builtin_air_fryer_sweet_potato_wedges":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Sweet%20potato%20waffle%20fries%20%28cropped%29.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Sweet_potato_waffle_fries_(cropped).jpg"},
+    "builtin_chicken_shawarma_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Handmade%20Chicken%20Shawarma%20Wrap%20-%20Lavash.jpg?width=1200",credit:"Andy Li / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Handmade_Chicken_Shawarma_Wrap_-_Lavash.jpg"},
+    "builtin_ground_chicken_kebab_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Tikka%20Kebab.jpg?width=1200",credit:"Sumit Surai / Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Tikka_Kebab.jpg"},
+    "builtin_garlic_paprika_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20food.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_food.jpg"},
+    "builtin_teriyaki_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Teriyaki%20%28with%20rice%20and%20slaw%29%20at%20Toshi%E2%80%99s%20Teriyaki%20Grill%2C%20Seattle%2C%20Washington.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Teriyaki_(with_rice_and_slaw)_at_Toshi%E2%80%99s_Teriyaki_Grill,_Seattle,_Washington.jpg"},
+    "builtin_butter_chicken_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Butter%20Chicken%20%26%20Butter%20Naan%20-%20Home%20-%20Chandigarh%20-%20India%20-%200006.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Butter_Chicken_%26_Butter_Naan_-_Home_-_Chandigarh_-_India_-_0006.jpg"},
+    "builtin_tandoori_chicken_thighs_3_servings":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20Tandoori%20Island.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chicken_Tandoori_Island.jpg"},
+    "builtin_simple_turkey_chili_allrecipes":{url:"https://commons.wikimedia.org/wiki/Special:FilePath/Chili%20con%20carne%20%285034005470%29.jpg?width=1200",credit:"Wikimedia Commons",source:"https://commons.wikimedia.org/wiki/File:Chili_con_carne_(5034005470).jpg"}
+  };
+
+  const all=await idbAll("recipes");
+  for(const r of all){
+    const p=photoMap[r.id];
+    if(!p)continue;
+
+    // Never overwrite a photo the user already chose.
+    if(!r.photo){
+      r.photo=p.url;
+      r.photoCredit=p.credit;
+      r.photoSource=p.source;
+      r.updatedAt=new Date().toISOString();
+      await idbPut("recipes",r);
+    }
+  }
+  await idbPut("meta",{key:"builtinWebPhotosV1",value:true});
+}
+
+async function seedIfNeeded(){
+  // 1) Migrate anything already saved by the original localStorage app.
+  let existing=await idbAll("recipes");
+
+  if(!existing.length){
+    try{
+      const old=JSON.parse(localStorage.getItem(OLD_STORAGE_KEY));
+      if(Array.isArray(old)&&old.length){
+        for(const raw of old){
+          await idbPut("recipes",applyDefaultRecipePhoto(normalizeLegacy(raw,"user")));
+        }
+      }
+    }catch{}
+  }
+
+  // 2) Always reconcile the original built-in recipe catalog.
+  // Add a missing built-in recipe, but NEVER overwrite an existing/user-edited copy.
+  const seeds=[
+    starterRecipe,
+    macCheeseRecipe,
+    chickfilaSandwichRecipe,
+    sweetPotatoWedgesRecipe,
+    chickenShawarmaRecipe,
+    groundChickenKebabRecipe,
+    garlicPaprikaChickenRecipe,
+    teriyakiChickenRecipe,
+    butterChickenRecipe,
+    tandooriChickenThighsRecipe,
+    simpleTurkeyChiliRecipe
+  ];
+
+  existing=await idbAll("recipes");
+
+  for(const seed of seeds){
+    const alreadyThere=existing.some(r =>
+      r.id===seed.id ||
+      String(r.title||"").trim().toLowerCase()===String(seed.title||"").trim().toLowerCase()
+    );
+
+    if(!alreadyThere){
+      const normalized=applyDefaultRecipePhoto(normalizeLegacy(seed,"builtin"));
+      await idbPut("recipes",normalized);
+      existing.push(normalized);
+    }
+  }
+
+  await idbPut("meta",{key:"schemaVersion",value:SCHEMA_VERSION});
+}
+async function reload(){state.recipes=await idbAll("recipes");state.collections=await idbAll("collections");render()}
+
+function esc(s=""){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function pageTitle(){return ({recipes:"My Recipes",favorites:"Favorites",collections:"Collections",recent:"Recently Added",data:"Backup & Data"})[state.page]||"My Recipes"}
+function filteredRecipes(){
+  let rs=[...state.recipes];
+  if(state.page==="favorites")rs=rs.filter(r=>r.favorite);
+  if(state.page==="recent")rs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const q=state.search.trim().toLowerCase();
+  if(q)rs=rs.filter(r=>[r.title,r.description,r.category,r.cuisine,r.sourceSite,...(r.tags||[]),...(r.cookingMethods||[]),...(r.ingredients||[]).map(i=>i.rawText||i.name),r.notes].join(" ").toLowerCase().includes(q));
+  if(state.filter!=="all")rs=rs.filter(r=>[r.category,r.cuisine,...(r.tags||[]),...(r.cookingMethods||[])].map(x=>String(x).toLowerCase()).includes(state.filter));
+  return rs;
+}
+function render(){
+  document.querySelectorAll(".nav button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===state.page));
+  if(state.currentId){renderDetail();return}
+  if(state.page==="data"){renderData();return}
+  if(state.page==="collections"){renderCollections();return}
+  renderLibrary();
+}
+function renderLibrary(){
+  const rs=filteredRecipes();
+  const tags=["all","indian","chicken","air fryer","quick"];
+  els.content.innerHTML=`<div class="page-head"><div><h1>${esc(pageTitle())}</h1><p>${rs.length} recipe${rs.length===1?"":"s"}</p></div><button class="btn btn-primary" onclick="openAddChoice()">+ Add Recipe</button></div>
+  <div class="filter-row">${tags.map(t=>`<button class="chip ${state.filter===t?"active":""}" onclick="setFilter('${t}')">${t==="all"?"All":esc(t.replace(/\b\w/g,c=>c.toUpperCase()))}</button>`).join("")}</div>
+  ${rs.length?`<div class="recipe-grid">${rs.map(cardHTML).join("")}</div>`:`<div class="empty"><div class="emoji">🍽️</div><h3>No recipes found</h3><p>Try a different search or add a new recipe.</p></div>`}`;
+}
+function cardHTML(r){
+  const photo=r.photo?`<img src="${esc(r.photo)}" alt="${esc(r.title)}" loading="lazy" decoding="async">`:"🍲";
+  const meta=[r.cuisine||r.category,r.totalTime||r.cookTime,`${r.servings||"?"} servings`].filter(Boolean).join(" • ");
+  return `<article class="recipe-card" onclick="openRecipe('${r.id}')"><div class="card-photo">${photo}</div><div class="card-body"><div class="card-title-row"><div class="card-title">${esc(r.title)}</div><button class="fav-btn" title="Favorite" onclick="event.stopPropagation();toggleFavorite('${r.id}')">${r.favorite?"♥":"♡"}</button></div><div class="card-meta">${esc(meta)}</div><div class="card-tags">${(r.cookingMethods||[]).slice(0,2).map(t=>`<span class="mini-tag">${esc(t)}</span>`).join("")}</div></div></article>`;
+}
+function setFilter(v){state.filter=v;render()}
+function openRecipe(id){state.currentId=id;state.servingMultiplier=1;render();window.scrollTo(0,0)}
+function closeRecipe(){state.currentId=null;render()}
+function renderDetail(){
+  const r=state.recipes.find(x=>x.id===state.currentId);if(!r){state.currentId=null;render();return}
+  const m=state.servingMultiplier, servings=Math.max(1,Math.round((r.servings||1)*m*100)/100);
+  els.content.innerHTML=`<button class="btn btn-ghost" onclick="closeRecipe()">← Back to recipes</button>
+  <div class="detail" style="margin-top:14px">
+    <div>
+      <article class="hero"><div class="hero-photo">${r.photo?`<img src="${esc(r.photo)}" alt="${esc(r.title)}" decoding="async">`:"🍲"}</div><div class="hero-body">
+        <div style="display:flex;gap:12px;align-items:flex-start"><div style="flex:1"><h1>${esc(r.title)}</h1><div class="muted">${esc([r.cuisine,r.category,...(r.cookingMethods||[])].filter(Boolean).join(" • "))}</div></div><button class="fav-btn" style="font-size:1.7rem" onclick="toggleFavorite('${r.id}')">${r.favorite?"♥":"♡"}</button></div>
+        <div class="meta-grid">
+          <div class="meta-cell"><small>Prep</small><strong>${esc(r.prepTime||"—")}</strong></div>
+          <div class="meta-cell"><small>Cook</small><strong>${esc(r.cookTime||"—")}</strong></div>
+          <div class="meta-cell"><small>Total</small><strong>${esc(r.totalTime||r.cookTime||"—")}</strong></div>
+          <div class="meta-cell"><small>Portions</small><div class="servings-control"><button class="round" onclick="changeServings(-1)">−</button><input id="portionInput" type="number" min="1" step="1" value="${servings}" onchange="setServings(this.value)" style="width:58px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:4px"><button class="round" onclick="changeServings(1)">+</button></div></div>
+        </div>
+        <div class="action-row"><button class="btn btn-primary" onclick="startCooking()">▶ Start Cooking</button><button class="btn btn-success" onclick="openGrocery('${r.id}')">🛒 Add to Grocery List</button><button class="btn btn-soft" onclick="editRecipe('${r.id}')">Edit</button><button class="btn btn-ghost" onclick="duplicateRecipe('${r.id}')">Duplicate</button></div>
+      </div></article>
+      <section class="section-card"><h2>Ingredients</h2><div class="muted" style="font-size:.84rem;margin:-6px 0 10px">Quantities automatically adjust when you change the portions above.</div><ul class="ingredients">${(r.ingredients||[]).map(i=>`<li class="ingredient"><input type="checkbox" onchange="this.parentElement.classList.toggle('checked',this.checked)"><span>${esc(displayIngredient(i,m))}</span></li>`).join("")}</ul></section>
+      <section class="section-card"><h2>Instructions</h2><ol class="steps">${(r.instructions||[]).map(s=>`<li>${esc(s.text||s)}${s.timerMinutes?` <button class="chip" onclick="startTimer(${Number(s.timerMinutes)})">⏱ ${Number(s.timerMinutes)} min</button>`:""}</li>`).join("")}</ol></section>
+      ${r.notes?`<section class="section-card"><h2>Notes & Tips</h2><div class="note">${esc(r.notes)}</div></section>`:""}
+    </div>
+    <aside class="side-panel">
+      <div class="side-card"><h3>Recipe details</h3><div class="muted">${esc(r.description||"No description yet.")}</div>${(r.tags||[]).length?`<div style="margin-top:10px">${r.tags.map(t=>`<span class="collection-pill">${esc(t)}</span>`).join("")}</div>`:""}</div>
+      <div class="side-card"><h3>Source</h3>${r.sourceUrl?`<a class="source-link" href="${esc(r.sourceUrl)}" target="_blank" rel="noopener">${esc(r.sourceSite||r.sourceUrl)} ↗</a>`:`<div class="muted">${r.sourceType==="manual"||r.origin==="user"?"Manually added":"Built-in recipe"}</div>`}${r.author?`<div class="muted" style="margin-top:6px">By ${esc(r.author)}</div>`:""}${r.photoSource?`<div class="muted" style="margin-top:10px;font-size:.78rem">Photo: <a href="${esc(r.photoSource)}" target="_blank" rel="noopener">${esc(r.photoCredit||"Web source")} ↗</a></div>`:""}</div>
+      <div class="side-card"><h3>More</h3><button class="btn btn-danger" onclick="deleteRecipe('${r.id}')">Delete Recipe</button></div>
+    </aside>
+  </div>`;
+}
+function changeServings(delta){
+  const r=state.recipes.find(x=>x.id===state.currentId);if(!r)return;
+  const base=Number(r.servings)||1;
+  const current=Math.max(1,Math.round(base*state.servingMultiplier*100)/100);
+  const next=Math.max(1,current+delta);
+  state.servingMultiplier=next/base;
+  renderDetail();
+}
+function setServings(value){
+  const r=state.recipes.find(x=>x.id===state.currentId);if(!r)return;
+  const base=Number(r.servings)||1;
+  const next=Math.max(1,Number(value)||base);
+  state.servingMultiplier=next/base;
+  renderDetail();
+}
+async function toggleFavorite(id){const r=state.recipes.find(x=>x.id===id);if(!r)return;r.favorite=!r.favorite;r.updatedAt=new Date().toISOString();await idbPut("recipes",r);await reload()}
+async function deleteRecipe(id){const r=state.recipes.find(x=>x.id===id);if(!r||!confirm(`Delete "${r.title}"?`))return;await idbDelete("recipes",id);state.currentId=null;await reload()}
+async function duplicateRecipe(id){const r=state.recipes.find(x=>x.id===id);if(!r)return;const copy=structuredClone(r);copy.id=uid("recipe");copy.title+=" Copy";copy.origin="user";copy.userModified=true;copy.createdAt=copy.updatedAt=new Date().toISOString();copy.ingredients=(copy.ingredients||[]).map(i=>({...i,id:uid("ing")}));copy.instructions=(copy.instructions||[]).map(s=>({...s,id:uid("step")}));await idbPut("recipes",copy);state.currentId=copy.id;await reload()}
+
+function openAddChoice(){
+ modal(`<div class="modal-head"><div><h2>Add Recipe</h2><div class="muted">Choose how you want to add it.</div></div><button class="icon-btn" onclick="closeModal()">✕</button></div>
+ <div class="choice-grid two" style="margin-top:16px">
+ <button class="choice" onclick="closeModal();editRecipe()"><strong>✍️ Enter Manually</strong><small>Create a structured recipe.</small></button>
+ <button class="choice" onclick="closeModal();openPasteRecipe()"><strong>📋 Paste Recipe Text</strong><small>Quickly turn copied ingredients and steps into a recipe.</small></button>
+ </div>`);
+}
+function editRecipe(id=null){
+ const r=id?state.recipes.find(x=>x.id===id):null;state.editingId=id;
+ const d=r||normalizeLegacy({id:uid("recipe"),title:"",ingredients:[],instructions:[],tags:[],servings:3},"manual");
+ els.content.innerHTML=`<div class="page-head"><div><h1>${r?"Edit Recipe":"New Recipe"}</h1><p>${r?"Update recipe details":"Add a recipe to your collection"}</p></div></div>
+ <div class="form-card"><div class="form-grid">
+ <div class="full"><label>Recipe name</label><input id="fTitle" value="${esc(d.title)}"></div>
+ <div class="full"><label>Description</label><textarea id="fDesc" style="min-height:80px">${esc(d.description||"")}</textarea></div>
+ <div><label>Cuisine</label><input id="fCuisine" value="${esc(d.cuisine||"")}" placeholder="Indian"></div>
+ <div><label>Category</label><input id="fCategory" value="${esc(d.category||"")}" placeholder="Dinner"></div>
+ <div><label>Cooking methods</label><input id="fMethods" value="${esc((d.cookingMethods||[]).join(", "))}" placeholder="Air Fryer, Pan"></div>
+ <div><label>Tags</label><input id="fTags" value="${esc((d.tags||[]).join(", "))}" placeholder="chicken, quick, kids"></div>
+ <div class="full"><label>Collections</label><input id="fCollections" value="${esc((d.collections||[]).join(", "))}" placeholder="Family Favorites, Quick Weeknight Meals"></div>
+ <div><label>Prep time</label><input id="fPrep" value="${esc(d.prepTime||"")}" placeholder="15 minutes"></div>
+ <div><label>Cook time</label><input id="fCook" value="${esc(d.cookTime||"")}" placeholder="20 minutes"></div>
+ <div><label>Rest / marinate</label><input id="fRest" value="${esc(d.restTime||"")}" placeholder="30 minutes"></div>
+ <div><label>Total time</label><input id="fTotal" value="${esc(d.totalTime||"")}" placeholder="35 minutes"></div>
+ <div><label>Servings</label><input id="fServings" type="number" min="1" step="1" value="${Number(d.servings||3)}"></div>
+ <div class="full">
+   <label>Recipe photo</label>
+   <div class="photo-editor">
+     <div class="photo-preview" id="photoPreview"></div>
+     <div>
+       <div class="photo-actions">
+         <button class="btn btn-soft" type="button" onclick="document.getElementById('photoFileInput').click()">📁 Choose Photo</button>
+         <button class="btn btn-soft camera-only" type="button" onclick="document.getElementById('photoCameraInput').click()">📷 Take Photo</button>
+         <button class="btn btn-ghost" type="button" id="removePhotoBtn" onclick="removeRecipePhoto()">Remove</button>
+       </div>
+       <input id="photoFileInput" class="hidden" type="file" accept="image/*" onchange="handleRecipePhoto(this.files?.[0],this)">
+       <input id="photoCameraInput" class="hidden" type="file" accept="image/*" capture="environment" onchange="handleRecipePhoto(this.files?.[0],this)">
+       <div class="photo-help">Photos are resized automatically for faster loading and smaller backups. They stay stored locally in your browser.</div>
+       <div class="photo-status" id="photoStatus"></div>
+     </div>
+   </div>
+ </div>
+ <div class="form-section"><h3>Ingredients</h3><div class="inline-list" id="ingredientRows"></div><button class="btn btn-ghost" type="button" onclick="addIngredientRow()">+ Add Ingredient</button><button class="btn btn-ghost" type="button" onclick="quickPasteIngredients()">Quick Paste</button></div>
+ <div class="form-section"><h3>Instructions</h3><div class="inline-list" id="stepRows"></div><button class="btn btn-ghost" type="button" onclick="addStepRow()">+ Add Step</button><button class="btn btn-ghost" type="button" onclick="quickPasteSteps()">Quick Paste</button></div>
+ <div class="full"><label>Notes & Tips</label><textarea id="fNotes">${esc(d.notes||"")}</textarea></div>
+ <div><label>Source URL</label><input id="fSource" value="${esc(d.sourceUrl||"")}" placeholder="https://..."></div>
+ <div><label>Author / site</label><input id="fAuthor" value="${esc(d.author||"")}" placeholder="Optional"></div>
+ </div><div class="form-actions"><button class="btn btn-ghost" onclick="cancelForm()">Cancel</button><button class="btn btn-primary" onclick="saveForm()">Save Recipe</button></div></div>`;
+ editPhotoData=d.photo||"";
+ editPhotoChanged=false;
+ renderPhotoPreview();
+ (d.ingredients||[]).forEach(i=>addIngredientRow(i));if(!(d.ingredients||[]).length)addIngredientRow();
+ (d.instructions||[]).forEach(s=>addStepRow(s));if(!(d.instructions||[]).length)addStepRow();
+}
+function addIngredientRow(i={}){
+ const row=document.createElement("div");row.className="inline-row";
+ row.innerHTML=`<input class="iq" placeholder="Qty" value="${i.quantity!=null?esc(i.quantity):""}"><input class="iu" placeholder="Unit" value="${esc(i.unit||"")}"><input class="in" placeholder="Ingredient" value="${esc(i.name||i.rawText||"")}"><button class="icon-btn" type="button" onclick="this.parentElement.remove()">✕</button>`;
+ ingredientRows.appendChild(row)
+}
+function addStepRow(s={}){
+ const n=stepRows.children.length+1,row=document.createElement("div");row.className="inline-row step";
+ row.innerHTML=`<div style="padding:10px;text-align:center;font-weight:800">${n}</div><input class="st" placeholder="Instruction step" value="${esc(s.text||"")}"><button class="icon-btn" type="button" onclick="this.parentElement.remove();renumberSteps()">✕</button>`;
+ stepRows.appendChild(row)
+}
+function renumberSteps(){[...stepRows.children].forEach((r,i)=>r.firstElementChild.textContent=i+1)}
+function quickPasteIngredients(){const t=prompt("Paste ingredients, one per line:");if(!t)return;ingredientRows.innerHTML="";t.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(x=>addIngredientRow(parseIngredient(x)))}
+function quickPasteSteps(){const t=prompt("Paste instructions, one step per line:");if(!t)return;stepRows.innerHTML="";t.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(x=>addStepRow({text:x}))}
+
+function renderPhotoPreview(){
+  const box=document.getElementById("photoPreview");
+  const remove=document.getElementById("removePhotoBtn");
+  if(!box)return;
+  if(editPhotoData){
+    box.innerHTML=`<img src="${esc(editPhotoData)}" alt="Recipe photo preview">`;
+    if(remove)remove.classList.remove("hidden");
+  }else{
+    box.innerHTML=`<div class="photo-empty"><div style="font-size:2rem;margin-bottom:6px">🍽️</div>No recipe photo yet</div>`;
+    if(remove)remove.classList.add("hidden");
+  }
+}
+function photoDataSizeKB(dataUrl){
+  if(!dataUrl)return 0;
+  const comma=dataUrl.indexOf(",");
+  const b64=comma>=0?dataUrl.slice(comma+1):dataUrl;
+  return Math.round((b64.length*3/4)/1024);
+}
+async function loadImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("This image format could not be opened by the browser."))};
+    img.src=url;
+  });
+}
+async function compressRecipePhoto(file){
+  if(!file||!String(file.type||"").startsWith("image/"))throw new Error("Please select an image file.");
+  const maxInput=20*1024*1024;
+  if(file.size>maxInput)throw new Error("That photo is larger than 20 MB. Please choose a smaller image.");
+
+  const img=await loadImageFile(file);
+  const maxSide=1400;
+  let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+  if(!w||!h)throw new Error("The image dimensions could not be read.");
+  const scale=Math.min(1,maxSide/Math.max(w,h));
+  w=Math.max(1,Math.round(w*scale));
+  h=Math.max(1,Math.round(h*scale));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext("2d",{alpha:false});
+  ctx.fillStyle="#ffffff";ctx.fillRect(0,0,w,h);
+  ctx.drawImage(img,0,0,w,h);
+
+  // Start at good visual quality. If the result is still large, step quality down.
+  let quality=.84;
+  let data=canvas.toDataURL("image/jpeg",quality);
+  while(photoDataSizeKB(data)>650 && quality>.62){
+    quality-=.06;
+    data=canvas.toDataURL("image/jpeg",quality);
+  }
+  return data;
+}
+async function handleRecipePhoto(file,input){
+  if(!file)return;
+  const status=document.getElementById("photoStatus");
+  try{
+    if(status)status.textContent="Processing photo…";
+    const data=await compressRecipePhoto(file);
+    editPhotoData=data;
+    editPhotoChanged=true;
+    renderPhotoPreview();
+    if(status)status.textContent=`Ready • ${photoDataSizeKB(data)} KB after resizing`;
+  }catch(e){
+    if(status)status.textContent="";
+    alert(e?.message||"Could not process that photo.");
+  }finally{
+    if(input)input.value="";
+  }
+}
+function removeRecipePhoto(){
+  editPhotoData="";
+  editPhotoChanged=true;
+  renderPhotoPreview();
+  const status=document.getElementById("photoStatus");
+  if(status)status.textContent="Photo will be removed when you save.";
+}
+
+async function saveForm(){
+ const title=fTitle.value.trim();if(!title){alert("Please enter a recipe name.");return}
+ const old=state.editingId?state.recipes.find(x=>x.id===state.editingId):null,now=new Date().toISOString();
+ const ingredients=[...ingredientRows.children].map(row=>{
+   const q=parseFloat(row.querySelector(".iq").value),unit=row.querySelector(".iu").value.trim(),name=row.querySelector(".in").value.trim();
+   if(!name)return null;return{id:uid("ing"),quantity:Number.isFinite(q)?q:null,unit,name,rawText:[Number.isFinite(q)?q:"",unit,name].filter(Boolean).join(" "),preparation:"",section:"",groceryCategory:guessGrocery(name),optional:/optional/i.test(name)}
+ }).filter(Boolean);
+ const instructions=[...stepRows.querySelectorAll(".st")].map(x=>x.value.trim()).filter(Boolean).map(text=>({id:uid("step"),text,section:"",timerMinutes:detectTimer(text)}));
+ let photo=editPhotoChanged?editPhotoData:(old?.photo||editPhotoData||"");
+ let source=fSource.value.trim(),site="";try{site=source?new URL(source).hostname.replace(/^www\./,""):""}catch{}
+ const r={id:old?.id||uid("recipe"),title,description:fDesc.value.trim(),cuisine:fCuisine.value.trim(),category:fCategory.value.trim(),cookingMethods:csv(fMethods.value),tags:csv(fTags.value),collections:csv(fCollections.value),
+ servings:Math.max(1,Number(fServings.value)||1),yieldText:old?.yieldText||"",prepTime:fPrep.value.trim(),cookTime:fCook.value.trim(),restTime:fRest.value.trim(),totalTime:fTotal.value.trim(),
+ ingredients,instructions,notes:fNotes.value.trim(),photo,sourceType:source?"web":"manual",sourceUrl:source,sourceSite:site,author:fAuthor.value.trim(),favorite:old?.favorite||false,rating:old?.rating||0,
+ createdAt:old?.createdAt||now,updatedAt:now,lastCooked:old?.lastCooked||null,timesCooked:old?.timesCooked||0,origin:old?.origin||"user",userModified:true};
+ await idbPut("recipes",r);state.editingId=null;editPhotoData="";editPhotoChanged=false;state.currentId=r.id;await reload();toast("Recipe saved");
+}
+function csv(s){return String(s).split(",").map(x=>x.trim()).filter(Boolean)}
+function cancelForm(){state.editingId=null;editPhotoData="";editPhotoChanged=false;state.currentId=null;render()}
+
+function openPasteRecipe(){
+ modal(`<div class="modal-head"><div><h2>Paste Recipe Text</h2><div class="muted">A fast way to create a recipe.</div></div><button class="icon-btn" onclick="closeModal()">✕</button></div>
+ <label style="margin-top:14px">Recipe name</label><input id="pTitle">
+ <label style="margin-top:12px">Ingredients — one per line</label><textarea id="pIng"></textarea>
+ <label style="margin-top:12px">Instructions — one step per line</label><textarea id="pSteps"></textarea>
+ <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="savePastedRecipe()">Continue Editing</button></div>`)
+}
+function savePastedRecipe(){
+ const title=pTitle.value.trim();if(!title){alert("Enter a recipe name.");return}
+ const d=normalizeLegacy({id:uid("recipe"),title,ingredients:pIng.value.split(/\n/).filter(Boolean),instructions:pSteps.value.split(/\n/).filter(Boolean),servings:3},"manual");
+ closeModal();editTempRecipe(d)
+}
+function editTempRecipe(d){state.recipes.push(d);state.editingId=d.id;editRecipe(d.id)}
+
+function openUrlImport(){
+ modal(`<div class="modal-head"><div><h2>Import Recipe from URL</h2><div class="muted">Works directly when the recipe site allows browser access.</div></div><button class="icon-btn" onclick="closeModal()">✕</button></div>
+ <label style="margin-top:14px">Recipe URL</label><div style="display:flex;gap:8px"><input id="importUrl" placeholder="https://..."><button class="btn btn-primary" onclick="tryUrlImport()">Import</button></div>
+ <div id="importStatus"></div>
+ <div id="fallbackArea" class="hidden"><div class="status">This website blocked direct browser import. Open the recipe page, copy its page source or Recipe JSON-LD, and paste it below.</div><label style="margin-top:12px">Page source / Recipe JSON-LD</label><textarea id="sourcePaste" style="min-height:180px"></textarea><button class="btn btn-soft" style="margin-top:8px" onclick="parsePastedSource()">Parse Pasted Source</button></div>
+ <div id="importPreview"></div>`)
+}
+async function tryUrlImport(){
+ const url=importUrl.value.trim();if(!/^https?:\/\//i.test(url)){importStatus.innerHTML=`<div class="status error">Enter a valid http(s) URL.</div>`;return}
+ importStatus.innerHTML=`<div class="status">Reading recipe…</div>`;fallbackArea.classList.add("hidden");importPreview.innerHTML="";
+ try{
+   const res=await fetch(url,{mode:"cors"});if(!res.ok)throw new Error("HTTP "+res.status);
+   const html=await res.text();const recipe=extractRecipeFromHTML(html,url);if(!recipe)throw new Error("No structured recipe found");
+   showImportPreview(recipe);
+ }catch(e){
+   importStatus.innerHTML=`<div class="status error">Direct import was blocked or no recipe data was found. Use the fallback below.</div>`;
+   fallbackArea.classList.remove("hidden");
+ }
+}
+function recursiveRecipe(x){
+ if(!x)return null;if(Array.isArray(x)){for(const y of x){const f=recursiveRecipe(y);if(f)return f}return null}
+ if(typeof x==="object"){const t=x["@type"];if(t==="Recipe"||(Array.isArray(t)&&t.includes("Recipe")))return x;if(x["@graph"])return recursiveRecipe(x["@graph"])}
+ return null
+}
+function extractRecipeFromHTML(html,url){
+ const doc=new DOMParser().parseFromString(html,"text/html");
+ for(const s of doc.querySelectorAll('script[type="application/ld+json"]')){
+   try{const f=recursiveRecipe(JSON.parse(s.textContent));if(f)return mapSchemaRecipe(f,url)}catch{}
+ }
+ return null
+}
+function parsePastedSource(){
+ const t=sourcePaste.value.trim();if(!t)return;
+ let obj=null;try{obj=recursiveRecipe(JSON.parse(t))}catch{}
+ if(obj){showImportPreview(mapSchemaRecipe(obj,importUrl.value.trim()));return}
+ const r=extractRecipeFromHTML(t,importUrl.value.trim());if(r)showImportPreview(r);else importStatus.innerHTML=`<div class="status error">I couldn't find Recipe structured data in that content.</div>`
+}
+function duration(iso){if(!iso)return"";const m=String(iso).match(/PT(?:(\d+)H)?(?:(\d+)M)?/i);if(!m)return String(iso);const a=[];if(m[1])a.push(`${m[1]} hr`);if(m[2])a.push(`${m[2]} min`);return a.join(" ")}
+function schemaImage(x){if(Array.isArray(x))x=x[0];if(typeof x==="object")return x.url||x.contentUrl||"";return x||""}
+function schemaAuthor(x){if(Array.isArray(x))x=x[0];return typeof x==="object"?(x.name||""):(x||"")}
+function mapSchemaRecipe(x,url){
+ let site="";try{site=new URL(url).hostname.replace(/^www\./,"")}catch{}
+ let steps=[];const walk=a=>{(Array.isArray(a)?a:[a]).forEach(v=>{if(!v)return;if(typeof v==="string")steps.push(v);else if(v["@type"]==="HowToSection")walk(v.itemListElement);else if(v.text)steps.push(v.text)})};walk(x.recipeInstructions||[]);
+ const servings=parseInt(String(Array.isArray(x.recipeYield)?x.recipeYield[0]:x.recipeYield||"").match(/\d+/)?.[0]||"4");
+ return normalizeLegacy({id:uid("recipe"),title:x.name||"Imported Recipe",description:x.description||"",category:Array.isArray(x.recipeCategory)?x.recipeCategory[0]:(x.recipeCategory||""),cuisine:Array.isArray(x.recipeCuisine)?x.recipeCuisine[0]:(x.recipeCuisine||""),
+ tags:Array.isArray(x.keywords)?x.keywords:String(x.keywords||"").split(",").map(s=>s.trim()).filter(Boolean),servings,prepTime:duration(x.prepTime),cookTime:duration(x.cookTime),totalTime:duration(x.totalTime),
+ ingredients:x.recipeIngredient||[],instructions:steps,notes:"",photo:schemaImage(x.image),sourceUrl:url,sourceSite:site,author:schemaAuthor(x.author),sourceType:"web"},"web")
+}
+let pendingImport=null;
+function showImportPreview(r){
+ pendingImport=r;importStatus.innerHTML=`<div class="status ok">Recipe found. Review it before saving.</div>`;
+ importPreview.innerHTML=`<div class="import-preview"><h3>${esc(r.title)}</h3><div class="muted">${esc([r.sourceSite,r.totalTime,`${r.servings} servings`].filter(Boolean).join(" • "))}</div><p><strong>${r.ingredients.length}</strong> ingredients • <strong>${r.instructions.length}</strong> steps</p><div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveImportedPreview()">Review & Save</button></div></div>`
+}
+function saveImportedPreview(){if(!pendingImport)return;const d=pendingImport;pendingImport=null;closeModal();state.recipes.push(d);state.editingId=d.id;editRecipe(d.id)}
+
+function openGrocery(id){
+ const r=state.recipes.find(x=>x.id===id);if(!r)return;const m=state.servingMultiplier, servings=Math.max(1,Math.round((r.servings||1)*m*100)/100);
+ modal(`<div class="modal-head"><div><h2>Add Ingredients to Grocery List</h2><div class="muted">${esc(r.title)} • ${servings} servings</div></div><button class="icon-btn" onclick="closeModal()">✕</button></div>
+ <div class="grocery-list" id="groceryItems">${(r.ingredients||[]).map(i=>`<div class="grocery-item"><input type="checkbox" checked data-id="${esc(i.id)}"><label>${esc(displayIngredient(i,m))}<div class="muted" style="font-size:.76rem">${esc(i.groceryCategory||"Other")}</div></label></div>`).join("")}</div>
+ <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-success" onclick="sendToGrocery('${r.id}')">Add Selected Items</button></div>`)
+}
+async function sendToGrocery(id){
+ const r=state.recipes.find(x=>x.id===id);if(!r)return;const checked=[...groceryItems.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.dataset.id),m=state.servingMultiplier;
+ const payload={transferVersion:1,transferId:uid("transfer"),createdAt:new Date().toISOString(),recipe:{recipeId:r.id,recipeName:r.title,servings:(r.servings||1)*m},items:(r.ingredients||[]).filter(i=>checked.includes(i.id)).map(i=>({ingredientId:i.id,name:i.name||i.rawText,quantity:i.quantity!=null?i.quantity*m:null,unit:i.unit||"",rawText:displayIngredient(i,m),groceryCategory:i.groceryCategory||"Other",optional:!!i.optional}))};
+ let queue=[];try{queue=JSON.parse(localStorage.getItem(GROCERY_QUEUE_KEY))||[]}catch{};queue.push(payload);localStorage.setItem(GROCERY_QUEUE_KEY,JSON.stringify(queue));
+ try{if(window.GroceryBridge&&typeof window.GroceryBridge.addItems==="function")await window.GroceryBridge.addItems(payload)}catch{}
+ closeModal();toast(`${payload.items.length} ingredient${payload.items.length===1?"":"s"} queued for Grocery List`);
+}
+
+function renderCollections(){
+ const map=new Map();for(const r of state.recipes){for(const c of r.collections||[]){if(!map.has(c))map.set(c,[]);map.get(c).push(r)}}
+ els.content.innerHTML=`<div class="page-head"><div><h1>Collections</h1><p>Organize recipes into groups.</p></div></div>${map.size?[...map.entries()].map(([k,v])=>`<section class="section-card"><h2>${esc(k)} <span class="muted" style="font-weight:400">(${v.length})</span></h2><div class="recipe-grid">${v.map(cardHTML).join("")}</div></section>`).join(""):`<div class="empty"><div class="emoji">📚</div><h3>No collections yet</h3><p>Edit a recipe and add one or more collection names to organize it here.</p></div>`}`
+}
+function renderData(){
+ els.content.innerHTML=`<div class="page-head"><div><h1>Backup & Data</h1><p>Keep a portable copy of your Recipe Box.</p></div></div>
+ <div class="section-card"><h2>Master Backup</h2><p class="muted">Exports all recipes and collections as one JSON file.</p><button class="btn btn-primary" onclick="exportBackup()">Export Backup</button> <button class="btn btn-soft" onclick="document.getElementById('backupFile').click()">Import Backup</button><input id="backupFile" type="file" accept=".json,application/json" class="hidden" onchange="importBackup(this.files[0])"></div>
+ <div class="section-card"><h2>Storage</h2><p><strong>${state.recipes.length}</strong> recipes stored in IndexedDB.</p><p class="muted">Schema version ${SCHEMA_VERSION} • App ${APP_VERSION}</p></div>
+ <div class="section-card"><h2>Grocery Integration</h2><p class="muted">Selected ingredients are queued under the shared bridge key <code>${GROCERY_QUEUE_KEY}</code>. A future Grocery List app hosted under the same origin can read and clear this queue or implement <code>window.GroceryBridge.addItems()</code>.</p></div>`;
+}
+function exportBackup(){
+ const data={schemaVersion:SCHEMA_VERSION,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),recipes:state.recipes,collections:state.collections};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`recipe_box_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)
+}
+async function importBackup(file){
+ if(!file)return;try{
+   const data=JSON.parse(await file.text()),arr=Array.isArray(data)?data:data.recipes;if(!Array.isArray(arr))throw new Error();
+   const mode=prompt('Type MERGE to keep current recipes and add/update the backup, or REPLACE to erase current recipes first.','MERGE');
+   if(!mode)return;
+   const action=mode.trim().toUpperCase();
+   if(action!=="MERGE"&&action!=="REPLACE"){alert("Import cancelled. Please choose MERGE or REPLACE.");return}
+   if(action==="REPLACE"){
+     if(!confirm("Replace ALL current Recipe Box data with this backup?"))return;
+     await idbClear("recipes");await idbClear("collections");
+   }
+   for(const raw of arr){const r=normalizeLegacy(raw,raw.origin||"user");await idbPut("recipes",r)}
+   if(Array.isArray(data.collections))for(const c of data.collections)await idbPut("collections",c);
+   await reload();toast(action==="REPLACE"?"Backup restored successfully":"Backup merged successfully");
+ }catch{alert("That file is not a valid Recipe Box backup.")}
+}
+
+let cookState={index:0};
+function startCooking(){cookState.index=0;renderCook()}
+function renderCook(){
+ const r=state.recipes.find(x=>x.id===state.currentId),steps=r?.instructions||[];if(!steps.length){alert("This recipe has no instructions.");return}
+ const i=Math.max(0,Math.min(cookState.index,steps.length-1)),s=steps[i];
+ const root=document.createElement("div");root.id="cookMode";root.className="cook";root.innerHTML=`<div class="cook-top"><strong>${esc(r.title)}</strong><button class="btn btn-ghost" onclick="document.getElementById('cookMode').remove()">Exit</button></div><div class="cook-main"><div><div class="cook-progress" style="text-align:center;margin-bottom:18px">Step ${i+1} of ${steps.length}</div><div class="cook-step">${esc(s.text||s)}</div>${s.timerMinutes?`<div style="text-align:center;margin-top:22px"><button class="btn btn-soft" onclick="startTimer(${Number(s.timerMinutes)})">⏱ Start ${Number(s.timerMinutes)}-minute timer</button></div>`:""}</div></div><div class="cook-foot"><button class="btn btn-ghost" onclick="cookPrev()" ${i===0?"disabled":""}>← Back</button><button class="btn btn-primary" onclick="${i===steps.length-1?"finishCooking()":"cookNext()"}">${i===steps.length-1?"Finish":"Next →"}</button></div>`;
+ document.body.appendChild(root)
+}
+function cookPrev(){cookState.index--;document.getElementById("cookMode")?.remove();renderCook()}
+function cookNext(){cookState.index++;document.getElementById("cookMode")?.remove();renderCook()}
+async function finishCooking(){const r=state.recipes.find(x=>x.id===state.currentId);if(r){r.lastCooked=new Date().toISOString();r.timesCooked=(r.timesCooked||0)+1;await idbPut("recipes",r)}document.getElementById("cookMode")?.remove();await reload();toast("Marked as cooked")}
+function startTimer(min){const ms=min*60000,ends=Date.now()+ms;toast(`${min}-minute timer started`);setTimeout(()=>{alert(`Timer finished: ${min} minute${min===1?"":"s"}.`)},ms)}
+
+function modal(inner){els.modalRoot.innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal">${inner}</div></div>`}
+function closeModal(){els.modalRoot.innerHTML=""}
+function toast(msg){els.toastRoot.innerHTML=`<div class="toast">${esc(msg)}</div>`;setTimeout(()=>els.toastRoot.innerHTML="",2600)}
+function openSidebar(v=true){
+  const open=!!v;
+  els.sidebar.classList.toggle("open",open);
+  const bd=els.sidebarBackdrop;
+  if(bd)bd.classList.toggle("show",open);
+  if(window.innerWidth<=760)document.body.style.overflow=open?"hidden":"";
+}
+
+document.querySelectorAll(".nav button[data-page]").forEach(b=>b.addEventListener("click",()=>{state.page=b.dataset.page;state.currentId=null;openSidebar(false);render()}));
+els.globalSearch.addEventListener("input",e=>{state.search=e.target.value;state.currentId=null;if(state.page==="data"||state.page==="collections")state.page="recipes";render()});
+els.menuBtn.addEventListener("click",()=>openSidebar(!els.sidebar.classList.contains("open")));
+window.addEventListener("resize",()=>{
+  if(window.innerWidth>760){
+    els.sidebar.classList.remove("open");
+    els.sidebarBackdrop?.classList.remove("show");
+    document.body.style.overflow="";
+  }
+});
+els.addBtn.onclick=els.navAdd.onclick=openAddChoice;
+
+(async function init(){
+  try{
+    if(!els.content)throw new Error("Main content container was not found.");
+    db=await openDB();
+    await seedIfNeeded();
+    await seedExistingRecipeWebPhotos();
+    await repairBuiltinServingMetadata();
+    state.recipes=await idbAll("recipes");
+    state.collections=await idbAll("collections");
+    render();
+  }catch(e){
+    console.error("Recipe Box startup error:",e);
+    const target=els.content||document.getElementById("content")||document.body;
+    target.innerHTML=`<div class="empty"><div class="emoji">⚠️</div><h3>Recipe Box could not start.</h3><p>${esc(e?.message||String(e))}</p><p class="muted">Try refreshing once. Your saved recipe data has not been intentionally cleared.</p></div>`;
+  }
+})();
+</script>
+</body>
+</html>
